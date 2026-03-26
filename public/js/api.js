@@ -44,7 +44,7 @@ export function fmtDate(iso, opts = {}) {
 }
 export function fmtTime(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
 }
 export function fmtDateTime(iso) { return `${fmtDate(iso)} · ${fmtTime(iso)}`; }
 export function fmtDay(iso) {

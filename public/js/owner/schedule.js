@@ -131,8 +131,8 @@ function positionEvents(dates) {
 
     const start = new Date(s.starts_at);
     const end = new Date(s.ends_at);
-    const startH = start.getHours() + start.getMinutes()/60;
-    const endH = end.getHours() + end.getMinutes()/60;
+    const startH = start.getUTCHours() + start.getUTCMinutes()/60;
+    const endH = end.getUTCHours() + end.getUTCMinutes()/60;
 
     // Find the cell for this day at the first hour
     const sampleCell = grid.querySelector(`[data-date="${sDate}"][data-hour="${HOURS[0]}"]`);
@@ -142,9 +142,10 @@ function positionEvents(dates) {
     const cellRect = sampleCell.getBoundingClientRect();
     const colX = cellRect.left - gridRect.left;
     const colW = cellRect.width;
-    const headerH = 40; // approximate header height
+    // Use the actual measured top of the first hour cell instead of a hardcoded header height
+    const headerH = cellRect.top - gridRect.top;
 
-    // Row 1 = header (40px), then each hour is 60px
+    // Offset from the top of the first hour cell, then add per-hour pixels
     const topInGrid = headerH + (startH - HOURS[0]) * 60;
     const height = Math.max(22, (endH - startH) * 60 - 3);
 

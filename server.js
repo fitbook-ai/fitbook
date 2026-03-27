@@ -63,17 +63,25 @@ const server = createServer(async (req, res) => {
   // API routing
   if (path.startsWith('/api/')) {
     try {
-      const handled =
-        handleAuth(req, res, path) ||
-        handleClasses(req, res, path) ||
-        handleBookings(req, res, path) ||
-        handleMembers(req, res, path) ||
-        handleDashboard(req, res, path);
+      // Each handler returns false if it doesn't match, or a Promise if it does.
+      // We must await the Promise so async errors are caught by the try/catch below.
+      const handlers = [handleAuth, handleClasses, handleBookings, handleMembers, handleDashboard];
+      let handled = false;
+      for (const handler of handlers) {
+        const result = handler(req, res, path);
+        if (result !== false) {
+          await result;
+          handled = true;
+          break;
+        }
+      }
       if (!handled) { res.statusCode = 404; res.end(JSON.stringify({ error: 'Route not found' })); }
     } catch (err) {
       console.error('API Error:', err);
-      res.statusCode = 500;
-      res.end(JSON.stringify({ error: 'Internal server error', detail: err.message }));
+      if (!res.writableEnded) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ error: 'Internal server error', detail: err.message }));
+      }
     }
     return;
   }
